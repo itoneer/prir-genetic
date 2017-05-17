@@ -19,9 +19,10 @@ public class PRiRGenetic {
             - parsowanie argumentów
             (wielkość populacji, ilość pokoleń, dokładność/ilość
              pokoleń bez zmian do stwierdzenia stagnacji itp.)
-            - ustalenie: funkcji przystosowania, prawdop. krzyżowania i mutacji
-            - formy krżyżowania
-            - rozbicia na moduły
+            - ustalenie: domyślnych prawdop. krzyżowania i mutacji
+            - podzielenie populacji na fragmenty
+            - rozesłanie fragmentów do wszystkich serwerów
+            - wyciągnięcie odpowiedi od serwerów
         */
     }
     

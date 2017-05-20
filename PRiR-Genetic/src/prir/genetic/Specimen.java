@@ -12,7 +12,7 @@ import java.util.Random;
  *
  * @author itoneer
  */
-public class Specimen implements Serializable{
+public class Specimen implements Serializable {
     private double x1;
     private double x2;
     private double x3;
@@ -65,7 +65,7 @@ public class Specimen implements Serializable{
     
     public void crossover(Specimen s) {
         Random r = new Random();
-        int start = r.nextInt(3);
+        int start = r.nextInt(4);
         boolean dir = r.nextBoolean(); //true - do góry
         double t;
         switch(start) {
@@ -84,6 +84,9 @@ public class Specimen implements Serializable{
                 break;
             case 2:
                 switchGenes(2, s);
+                break;
+            case 3: //tylko środek
+                switchGenes(1, s);
                 break;
         }
     }
@@ -111,7 +114,7 @@ public class Specimen implements Serializable{
         }
     }
 
-    double getFitness() {
+    public double getFitness() {
         double sum = 0;
         sum += 100*Math.pow((x2 - Math.pow(x1, 2)), 2) + Math.pow(1 - x1, 2);
         sum += 100*Math.pow((x3 - Math.pow(x2, 2)), 2) + Math.pow(1 - x2, 2);

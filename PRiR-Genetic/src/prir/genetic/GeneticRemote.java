@@ -13,7 +13,8 @@ import prir.genetic.technical.Compute;
 import prir.genetic.technical.Task;
 
 /**
- *
+ * Klasa serwerowa programu.
+ * 
  * @author itoneer
  */
 public class GeneticRemote implements Compute {
@@ -26,15 +27,14 @@ public class GeneticRemote implements Compute {
             System.setSecurityManager(new SecurityManager());
         }
         try {
-            String name = "Compute";
+            String name = "Compute"; //nazwa zależy od serwera?
             Compute engine = new GeneticRemote();
-            Compute stub =
-                (Compute) UnicastRemoteObject.exportObject(engine, 0);
+            Compute stub = (Compute) UnicastRemoteObject.exportObject(engine, 0);
             Registry registry = LocateRegistry.getRegistry();
             registry.rebind(name, stub);
-            System.out.println("ComputeEngine bound");
+            System.out.println("GeneticRemote bound");
         } catch (RemoteException e) {
-            System.err.println("ComputeEngine exception: ");
+            System.err.println("GeneticRemote exception: ");
             e.printStackTrace();
         }
     }

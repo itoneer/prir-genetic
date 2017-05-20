@@ -6,52 +6,46 @@
 package prir.genetic;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
  * 
  * @author itoneer
  */
-public class Population implements Serializable {
+public class Population implements Serializable { //TODO: serializacja
     
-    private Specimen [] population;
-    private Specimen best;
-    
+    private List<Specimen> population;
     
     public Population(int size) {
         Random r = new Random();
         double x, y, z;
-        population = new Specimen[size];
+        population = new ArrayList<>();
         for (int i = 0; i < size; i++){
             x = r.nextDouble()*100 - 50;
             y = r.nextDouble()*100 - 50;
             z = r.nextDouble()*100 - 50;
-            population[i] = new Specimen(x, y, z);
+            population.add(new Specimen(x, y, z));
         }
     }
     
-    public Population(Specimen [] s) {
+    public Population(List<Specimen> s) {
         population = s;
     }
     
     public Population (Population [] ps) {
-        int l = 0;
+        population = new ArrayList<>();
         for (Population p: ps) {
-            l += p.getPopulationSize();
-        }
-        population = new Specimen[l];
-        l = 0;
-        for (Population p: ps) {
-            Specimen [] ls = p.getPopulation();
-            for (Specimen s : ls) {
-                population[l] = s;
-                l++;
-            }
+            List<Specimen> ls = p.getPopulation();
+            ls.forEach((s) -> { 
+                population.add(s);
+            });   
         }
     }
     
     public int getPopulationSize() {
-        return population.length;
+        return population.size();
     }
 
     /**
@@ -61,33 +55,32 @@ public class Population implements Serializable {
      * @return
      */
     public Specimen getBest() {
-        if (best != null) return best;
         
         double fit = 0.0;
         double cf;
         int s = 0;
         
-        for(int i = 0; i < population.length; i++) {
-            cf = population[i].getFitness();
+        for(Specimen sp: population) {
+            cf = sp.getFitness();
             if (cf > fit) {
                 fit = cf;
-                s = i;
+                s = population.indexOf(sp);
             }
         }
         
-        return population[s];
+        return population.get(s);
     }
     
-    public void setBest(Specimen s) {
-        best = s;
-    }
-
-    public Specimen[] getPopulation() {
+    public List<Specimen> getPopulation() {
         return population;
     }
 
-    public void setPopulation(Specimen[] population) {
+    public void setPopulation(List<Specimen> population) {
         this.population = population;
+    }
+
+    public Specimen getSpecimen(int i) {
+        return population.get(i);
     }
     
     

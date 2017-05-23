@@ -14,7 +14,7 @@ import prir.genetic.technical.Task;
  *
  * @author Sławomir
  */
-public class Breeder implements Serializable, Task { //TODO: execute, serializacja
+public class Breeder implements Serializable, Task<Population> { //TODO: execute, serializacja
 
     private final Population p;
     private final int start;

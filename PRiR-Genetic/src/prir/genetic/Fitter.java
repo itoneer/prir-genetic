@@ -6,8 +6,6 @@
 package prir.genetic;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import prir.genetic.technical.Task;
 
 /**
@@ -23,14 +21,13 @@ public class Fitter implements Serializable, Task{ //TODO: serializacja
     }
     
     @Override
-    public List<Double> execute() {
-        List results = new ArrayList<>();
+    public Population execute() {
         
         for (int i = 0; i < p.getPopulationSize(); i++) {
             Specimen s = p.getSpecimen(i);
-            results.add(s.getFitness());
         }
-        return results;
+        p.sort();
+        return p;
     }
     
 }

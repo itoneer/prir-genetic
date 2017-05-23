@@ -15,14 +15,21 @@ import prir.genetic.technical.Compute;
  * Klasa kontrolera programu.
  * 
  * 
- * @author itoneer
+ * @author itoneer, jp
  */
 public class PRiRGenetic {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    private int population = 0;     //wielkość populacji
+    private int generation = 0;     //ilość pokoleń
+    private int stag_limit = 0;     //ilość pokoleń bez zmian do stwierdzenia stagnacji
+    private double mutProb = 0;
+    private double crossProb = 0;
+    private StringBuilder help = new StringBuilder();
+    
+    public void main(String[] args) {
         /* do zrobienia:
             - parsowanie argumentów
             (wielkość populacji, ilość pokoleń, dokładność/ilość
@@ -32,6 +39,41 @@ public class PRiRGenetic {
             - rozesłanie fragmentów do wszystkich serwerów
             - wyciągnięcie odpowiedzi od serwerów
         */
+        
+        
+        //StringBuilder do helpa - jeszcze do zrobienia
+        help.append("Algorytm Genetyczny Czegośtam - Help xD\n\n");
+        help.append("But nobody came.\n");
+        
+        
+        //Parsowanie argumentów
+        for (int i = 0 ; i < args.length ; i += 2)
+        {
+            switch(args[i]) {
+                case "-p":
+                    population = Integer.parseInt(args[i+1]);
+                    break;
+                case "-n":
+                    generation = Integer.parseInt(args[i+1]);
+                    break;
+                case "-s":
+                    stag_limit = Integer.parseInt(args[i+1]);
+                    break;
+                case "-c":
+                    crossProb = Double.parseDouble(args[i+1]);
+                    break;
+                case "-m":
+                    mutProb = Double.parseDouble(args[i+1]);
+                    break;
+                case "-h":
+                    System.out.print(help.toString());
+                    return;
+                default:
+                    System.out.println("Fakju axaxaxa");
+                    System.out.print(help.toString());
+                    return;
+            }
+        }
         
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
@@ -47,6 +89,5 @@ public class PRiRGenetic {
             System.err.println("PRiRGenetic exception:");
             e.printStackTrace();
         }
-    }
-    
+    }    
 }

@@ -55,7 +55,6 @@ public class Population implements Serializable { //TODO: serializacja
     /**
      * Znajduje najlepiej przystosowanego osobnika w populacji.
      *
-     *
      * @return
      */
     public Specimen getBest() {
@@ -90,6 +89,23 @@ public class Population implements Serializable { //TODO: serializacja
 
     public Specimen getSpecimen(int i) {
         return population.get(i);
+    }
+
+    /**
+     * Redukuje posortowaną populację do określonej części najlepszych osobników.
+     * 
+     * @param d procent populacji, który należy pozostawić
+     */
+    public void cull(double d) {
+        List<Specimen> p = new ArrayList<>();
+        for (int i = 0; i < d*population.size(); i++) {
+            p.add(population.get(i));
+        }
+        population = p;
+    }
+
+    public void fill(int p) {
+        List<Specimen> p2 = new ArrayList<>(population);
     }
 
 }

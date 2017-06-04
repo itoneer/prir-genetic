@@ -38,6 +38,7 @@ public class PRiRGenetic {
         //StringBuilder do helpa - jeszcze do zrobienia
         HELP.append("Rozproszony Algorytm Genetyczny - Help\n\n");
         HELP.append("Opcje:\n");
+        HELP.append("Pierwszym argumentem *zawsze* musi być adres serwera\n");
         HELP.append("-p, --population - wielkość populacji <5 - 10000>\n");
         HELP.append("-g, --generation - ilość pokoleń <20 - 10000>\n");
         HELP.append("-s, --stagnation - ilość pok. do stwierdzenia stagnacji\n");
@@ -46,9 +47,26 @@ public class PRiRGenetic {
        // help.append("-s, --servers - ilość dostępnych serwerów zewnętrznych (wymagany, co najmniej 1)");
         HELP.append("-h, --help - wyświetlenie tego tekstu\n");
         
+        Compute comp1, comp2;
+        Specimen best = null;
+        
+        if (System.getSecurityManager() == null) {
+            System.setSecurityManager(new SecurityManager());
+        }
+        try {
+            String name = "Compute";
+            Registry registry = LocateRegistry.getRegistry(args[0]);
+            comp1 = (Compute) registry.lookup(name); //tu też tablica?
+            comp2 =(Compute) UnicastRemoteObject.exportObject(new GeneticRemote(), 0);
+        } catch (NotBoundException | RemoteException e) {
+            System.err.println("PRiRGenetic exception: Failed to create or bind computing servers");
+            e.printStackTrace();
+            System.out.print(HELP.toString());
+            return;
+        }
         
         //Parsowanie argumentów
-        for (int i = 0 ; i < args.length ; i += 2)
+        for (int i = 1 ; i < args.length ; i += 2)
         {
             switch(args[i]) {
                 case "-p":
@@ -117,31 +135,14 @@ public class PRiRGenetic {
             }
         }
         
-        Compute comp1, comp2;
-        Specimen best = null;
-        
-        if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new SecurityManager());
-        }
-        try {
-            String name = "Compute";
-            Registry registry = LocateRegistry.getRegistry(args[0]);
-            comp1 = (Compute) registry.lookup(name); //tu też tablica?
-            comp2 =(Compute) UnicastRemoteObject.exportObject(new GeneticRemote(), 0);
-        } catch (NotBoundException | RemoteException e) {
-            System.err.println("PRiRGenetic exception: Failed to create or bind computing servers");
-            e.printStackTrace();
-            return;
-        }
-        
         Population p = new Population(population);
         Tracker t = new Tracker((int) 0.35*population);
         int stag = 0;
         for (int i = 0; i < generation; i++){
             Population p1 = new Population(p, 0, population/2);
             Population p2 = new Population(p, population/2, population);
-            Task t1 = new Fitter(p1);
-            Task t2 = new Fitter(p2);
+            Task<Population> t1 = new Fitter(p1);
+            Task<Population> t2 = new Fitter(p2);
             try {
                 p1 = (Population) comp1.executeTask(t1);
                 p2 = (Population) comp2.executeTask(t2);

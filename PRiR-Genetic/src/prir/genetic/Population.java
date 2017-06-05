@@ -23,9 +23,9 @@ public class Population implements Serializable { //TODO: serializacja
         double x, y, z;
         population = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            x = r.nextDouble() * 100 - 50;
-            y = r.nextDouble() * 100 - 50;
-            z = r.nextDouble() * 100 - 50;
+            x = r.nextDouble() * 20 - 10;
+            y = r.nextDouble() * 20 - 10;
+            z = r.nextDouble() * 20 - 10;
             population.add(new Specimen(x, y, z));
         }
     }
@@ -45,7 +45,7 @@ public class Population implements Serializable { //TODO: serializacja
     }
 
     public Population(Population p, int start, int end) {
-        population = p.getPopulation().subList(start, end);
+        population = new ArrayList<>(p.population.subList(start, end));
     }
 
     public int getPopulationSize() {
@@ -105,7 +105,24 @@ public class Population implements Serializable { //TODO: serializacja
     }
 
     public void fill(int p) {
+        Random r = new Random();
         List<Specimen> p2 = new ArrayList<>(population);
+        for (int i = p2.size(); i < p; i++) {
+           int j = r.nextInt(population.size());
+           p2.add(new Specimen(population.get(j)));
+        }
+        population = p2;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("Populacja o rozmiarze ").append(population.size()).append("\n");
+        for (Specimen sp: population) {
+            s.append(sp.toString()).append("\n");
+        }
+        
+        return s.toString();
     }
 
 }

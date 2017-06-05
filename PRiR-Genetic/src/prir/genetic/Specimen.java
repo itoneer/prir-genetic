@@ -24,6 +24,12 @@ public class Specimen implements Serializable, Comparable<Specimen> {
         x2 = y;
         x3 = z;
     }
+    
+    public Specimen(Specimen s) {
+        x1 = s.x1;
+        x2 = s.x2;
+        x3 = s.x3;
+    }
 
     public double getX1() {
         return x1;
@@ -54,13 +60,13 @@ public class Specimen implements Serializable, Comparable<Specimen> {
         int i = r.nextInt(3);
         switch (i) {
             case 0:
-                x1 = r.nextDouble() * 100 - 50;
+                x1 = r.nextDouble() * 20 - 10;
                 break;
             case 1:
-                x2 = r.nextDouble() * 100 - 50;
+                x2 = r.nextDouble() * 20 - 10;
                 break;
             case 2:
-                x3 = r.nextDouble() * 100 - 50;
+                x3 = r.nextDouble() * 20 - 10;
                 break;
         }
     }
@@ -102,13 +108,13 @@ public class Specimen implements Serializable, Comparable<Specimen> {
                 break;
             case 1:
                 t = x2;
-                x2 = s.getX1();
-                s.setX1(t);
+                x2 = s.getX2();
+                s.setX2(t);
                 break;
             case 2:
                 t = x3;
-                x3 = s.getX1();
-                s.setX1(t);
+                x3 = s.getX3();
+                s.setX3(t);
                 break;
             default:
                 throw new IllegalArgumentException("Bledny argument: " + i);
@@ -147,7 +153,16 @@ public class Specimen implements Serializable, Comparable<Specimen> {
 
     @Override
     public int compareTo(Specimen s) {
-        return (int) (fitness - s.fitness);
+        if (s.fitness - fitness == 0) {
+            if (equals(s)) return 0;
+            else return -1;
+        }
+        else return (int) (s.fitness - fitness);
+    }
+    
+    @Override
+    public String toString(){
+        return "[" + x1 + ", " + x2 + ", " + x3 + "] = " + fitness;
     }
 
 }

@@ -5,13 +5,14 @@
  */
 package prir.genetic.technical;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
  *
  * @author itoneer
  */
-public class Tracker {
+public class Tracker implements Serializable{
     private final boolean[] mutated;
     private final boolean[] crossed;
     private final int size;
@@ -30,7 +31,15 @@ public class Tracker {
     }
     
     public boolean isCrossed(int i) {
-        return crossed[i];
+        try {
+            return crossed[i];
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            throw new ArrayIndexOutOfBoundsException("Index " + i + " for size " + size);
+        }
+    }
+    
+    public int getSize() {
+        return size;
     }
     
     public boolean markAsMutated(int i) {

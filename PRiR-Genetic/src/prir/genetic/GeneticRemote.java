@@ -36,6 +36,7 @@ public class GeneticRemote implements Compute {
         } catch (RemoteException e) {
             System.err.println("GeneticRemote exception: ");
             e.printStackTrace();
+            return;
         }
     }
 

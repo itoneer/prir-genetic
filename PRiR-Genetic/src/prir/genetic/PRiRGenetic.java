@@ -9,7 +9,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import prir.genetic.technical.Compute;
 import prir.genetic.technical.Task;
 import prir.genetic.technical.Tracker;
@@ -38,14 +37,13 @@ public class PRiRGenetic {
         //StringBuilder do helpa - jeszcze do zrobienia
         HELP.append("Rozproszony Algorytm Genetyczny - Help\n\n");
         HELP.append("Opcje:\n");
-        HELP.append("Pierwszym argumentem *zawsze* musi być adres serwera\n");
-        HELP.append("-p, --population - wielkość populacji <5 - 10000>\n");
-        HELP.append("-g, --generation - ilość pokoleń <20 - 10000>\n");
-        HELP.append("-s, --stagnation - ilość pok. do stwierdzenia stagnacji\n");
-        HELP.append("-c, --crossover - prawdopodobieństwo wystąpienia krzyżowania <0.01 - 1>\n");
-        HELP.append("-m, --mutation - prawdopodobieństwo wystąpienia mutacji <0.01 - 1>\n");
+        HELP.append("-p, --population - wielkosc populacji <5 - 10000>\n");
+        HELP.append("-g, --generation - ilosc pokoleń <20 - 10000>\n");
+        HELP.append("-s, --stagnation - ilosc pok. do stwierdzenia stagnacji (0 - brak limitu)\n");
+        HELP.append("-c, --crossover - prawdopodobienstwo wystapienia krzyzowania <0.01 - 1>\n");
+        HELP.append("-m, --mutation - prawdopodobienstwo wystapienia mutacji <0.01 - 1>\n");
        // help.append("-s, --servers - ilość dostępnych serwerów zewnętrznych (wymagany, co najmniej 1)");
-        HELP.append("-h, --help - wyświetlenie tego tekstu\n");
+        HELP.append("-h, --help - wyswietlenie tego tekstu\n");
         
         Compute comp1, comp2;
         Specimen best = null;
@@ -55,9 +53,9 @@ public class PRiRGenetic {
         }
         try {
             String name = "Compute";
-            Registry registry = LocateRegistry.getRegistry(args[0]);
+            Registry registry = LocateRegistry.getRegistry("localhost");
             comp1 = (Compute) registry.lookup(name); //tu też tablica?
-            comp2 =(Compute) UnicastRemoteObject.exportObject(new GeneticRemote(), 0);
+            comp2 =(Compute) new GeneticRemote();
         } catch (NotBoundException | RemoteException e) {
             System.err.println("PRiRGenetic exception: Failed to create or bind computing servers");
             e.printStackTrace();
@@ -66,7 +64,7 @@ public class PRiRGenetic {
         }
         
         //Parsowanie argumentów
-        for (int i = 1 ; i < args.length ; i += 2)
+        for (int i = 0 ; i < args.length ; i += 2)
         {
             switch(args[i]) {
                 case "-p":
@@ -77,7 +75,7 @@ public class PRiRGenetic {
                     }
                     population = Integer.parseInt(args[i+1]);
                     if (population < 5 || population > 10000) {
-                        System.out.println("Błąd: niedopuszczalny rozmiar populacji");
+                        System.out.println("Blad: niedopuszczalny rozmiar populacji");
                         System.out.print(HELP.toString());
                         return;
                     }
@@ -91,7 +89,7 @@ public class PRiRGenetic {
                     }
                     generation = Integer.parseInt(args[i+1]);
                     if (generation < 20 || generation > 10000) {
-                        System.out.println("Błąd: niedopuszczalna liczba pokoleń");
+                        System.out.println("Blad: niedopuszczalna liczba pokolen");
                         System.out.print(HELP.toString());
                         return;
                     }
@@ -136,11 +134,12 @@ public class PRiRGenetic {
         }
         
         Population p = new Population(population);
-        Tracker t = new Tracker((int) 0.35*population);
+        Tracker t = new Tracker((int) (0.35*population));
         int stag = 0;
         for (int i = 0; i < generation; i++){
-            Population p1 = new Population(p, 0, population/2);
-            Population p2 = new Population(p, population/2, population);
+           // System.out.println("Pokolenie " + (i+1));
+            Population p1 = new Population(p, 0, p.getPopulationSize()/2);
+            Population p2 = new Population(p, p.getPopulationSize()/2, p.getPopulationSize()-1);
             Task<Population> t1 = new Fitter(p1);
             Task<Population> t2 = new Fitter(p2);
             try {
@@ -149,12 +148,14 @@ public class PRiRGenetic {
             } catch (RemoteException e) {
                 System.err.println("PRiRGenetic exception: Failed to compute fitness in generation " + i);
                 e.printStackTrace();
+                return;
             }
             Population [] ps = {p1, p2};
             p = new Population(ps);
             p.sort();
             
             p.cull(0.35);
+            //System.out.println(p.toString());
             t1 = new Breeder(p, 0, p.getPopulationSize()/2, crossProb, mutProb, t);
             t2 = new Breeder(p, p.getPopulationSize()/2, p.getPopulationSize()-1, crossProb, mutProb, t);
             try {
@@ -162,27 +163,29 @@ public class PRiRGenetic {
                 comp2.executeTask(t2);
             } catch (RemoteException ex ) {
                 ex.printStackTrace();
+                return;
             }
             t.reset();
+            p.fill(population);
             Specimen genBest = p.getBest();
-            if (best == null || best.getFitness() < genBest.getFitness()) {
+            System.out.println("Najlepszy w pokoleniu " + (i+1) + ": " + genBest.toString() + "\n");
+            if (best == null || best.getFitness() > genBest.getFitness()) {
                 best = genBest;
                 stag = 0;
             }
             else {
                 stag++;
-                if (stag >= stagLimit) {
-                    System.out.println("Osiągnięto dopuszczalny limit pokoleń stagnacji.");
+                if (stagLimit >0 && stag >= stagLimit) {
+                    System.out.println("Osiagnieto dopuszczalny limit pokolen stagnacji.");
                     break;
                 }
             }
-            p.fill(population);
         }
         
         System.out.println("Najlepiej przystosowany osobnik:");
         System.out.println("x1 = " + best.getX1());
         System.out.println("x2 = " + best.getX2());
         System.out.println("x3 = " + best.getX3());
-        System.out.println("Wartośćfunkcji przystosowania: " + best.getFitness());
+        System.out.println("Wartosc funkcji przystosowania: " + best.getFitness());
     }    
 }

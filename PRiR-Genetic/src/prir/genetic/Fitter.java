@@ -12,7 +12,7 @@ import prir.genetic.technical.Task;
  *
  * @author Sławomir
  */
-public class Fitter implements Serializable, Task{ //TODO: serializacja
+public class Fitter implements Serializable, Task<Population>{ //TODO: serializacja
 
     private final Population p;
     
@@ -23,9 +23,9 @@ public class Fitter implements Serializable, Task{ //TODO: serializacja
     @Override
     public Population execute() {
         
-        for (int i = 0; i < p.getPopulationSize(); i++) {
-            Specimen s = p.getSpecimen(i);
-        }
+        for (int i = 0; i < p.getPopulationSize(); i++) 
+            p.getSpecimen(i).computeFitness();
+        
         p.sort();
         return p;
     }
